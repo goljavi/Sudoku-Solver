@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 
 public class Sudoku : MonoBehaviour {
-    public int blocSize = 3;
+    public int quadrantSize = 3;
     public int maxDepthAllowed = 1000;
 	public Cell prefabCell;
 	public Canvas canvas;
@@ -37,8 +37,8 @@ public class Sudoku : MonoBehaviour {
         long mem = System.GC.GetTotalMemory(true);
         feedback.text = string.Format("MEM: {0:f2}MB", mem / (1024f * 1024f));
         memory = feedback.text;
-        _smallSide = blocSize;
-        _bigSide = _smallSide * blocSize;
+        _smallSide = quadrantSize;
+        _bigSide = _smallSide * quadrantSize;
         frequency = frequency * Mathf.Pow(r, 2);
         CreateEmptyBoard();
         ClearBoard();
@@ -376,23 +376,23 @@ public class Sudoku : MonoBehaviour {
 
 
 
-        cuadrante.x = (int)(x / 3);
+        cuadrante.x = (int)(x / quadrantSize);
 
-        if (x < 3)
+        if (x < quadrantSize)
             cuadrante.x = 0;
-        else if (x < 6)
-            cuadrante.x = 3;
+        else if (x < quadrantSize * 2)
+            cuadrante.x = quadrantSize;
         else
-            cuadrante.x = 6;
+            cuadrante.x = quadrantSize * 2;
 
-        if (y < 3)
+        if (y < quadrantSize)
             cuadrante.y = 0;
-        else if (y < 6)
-            cuadrante.y = 3;
+        else if (y < quadrantSize * 2)
+            cuadrante.y = quadrantSize;
         else
-            cuadrante.y = 6;
+            cuadrante.y = quadrantSize * 2;
 
-        area = mtx.GetRange((int)cuadrante.x, (int)cuadrante.y, (int)cuadrante.x + 3, (int)cuadrante.y + 3);
+        area = mtx.GetRange((int)cuadrante.x, (int)cuadrante.y, (int)cuadrante.x + quadrantSize, (int)cuadrante.y + quadrantSize);
         total.AddRange(fila);
         total.AddRange(columna);
         total.AddRange(area);
