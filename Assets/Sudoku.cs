@@ -355,7 +355,6 @@ public class Sudoku : MonoBehaviour {
 
     bool CanPlaceValue(Matrix<int> mtx, int value, int x, int y)
     {
-        if (quadrantSize > 3) return CanPlaceValue2(mtx, value, x, y);
         List<int> fila = new List<int>();
         List<int> columna = new List<int>();
         List<int> area = new List<int>();
@@ -372,23 +371,8 @@ public class Sudoku : MonoBehaviour {
             }
         }
 
-
-
-        cuadrante.x = (int)(x / quadrantSize);
-
-        if (x < quadrantSize)
-            cuadrante.x = 0;
-        else if (x < quadrantSize * 2)
-            cuadrante.x = quadrantSize;
-        else
-            cuadrante.x = quadrantSize * 2;
-
-        if (y < quadrantSize)
-            cuadrante.y = 0;
-        else if (y < quadrantSize * 2)
-            cuadrante.y = quadrantSize;
-        else
-            cuadrante.y = quadrantSize * 2;
+        cuadrante.x = x / quadrantSize * quadrantSize;
+        cuadrante.y = y / quadrantSize * quadrantSize;
 
         area = mtx.GetRange((int)cuadrante.x, (int)cuadrante.y, (int)cuadrante.x + quadrantSize, (int)cuadrante.y + quadrantSize);
         total.AddRange(fila);
@@ -413,21 +397,4 @@ public class Sudoku : MonoBehaviour {
         return aux;
     }
 
-
-    bool CanPlaceValue2(Matrix<int> mtx, int value, int x, int y)
-    {
-        // row & column
-        for (int i = 0; i < _board.Width; i++) if (i != x && mtx[i, y] == value || i != y && mtx[x, i] == value) return false;
-        
-        // quadrant
-        int srow = x / quadrantSize * quadrantSize;
-        int scol = y / quadrantSize * quadrantSize;
-        for (int contador_row = srow; contador_row < srow + quadrantSize; contador_row++)
-            for (int contador_col = scol; contador_col < scol + quadrantSize; contador_col++)
-                if (!(contador_row == x && contador_col == y))
-                    if (mtx[contador_row, contador_col] == value)
-                        return false;
-
-        return true;
-    }
 }
