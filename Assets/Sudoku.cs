@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class Sudoku : MonoBehaviour {
     public int quadrantSize = 3;
-    public int maxDepthAllowed = 1000;
 	public Cell prefabCell;
 	public Canvas canvas;
 	public Text feedback;
@@ -123,8 +122,6 @@ public class Sudoku : MonoBehaviour {
     bool RecuSolve(int x, int y, int protectMaxDepth, List<Matrix<int>> solution)
     {
         if (y > _board.Height-1) return true;
-        if (protectMaxDepth >= maxDepthAllowed) return false;
-        protectMaxDepth++;
 
         // Si el casillero esta vacío lo resuelvo, si ya tenia un valor cargado de antes lo salteo (porque está bloqueado)
         if (solution[solution.Count - 1][x, y] == 0)
@@ -203,7 +200,7 @@ public class Sudoku : MonoBehaviour {
             TranslateAllValues(item);
             LockValuesToSolve();
             feedback.text = "Pasos: " + paso + "/" + total + " - " + memory + " - " + canSolve;
-            changeFreq(Random.Range(0, 100));
+            changeFreq(Random.Range(0, 50));
             yield return new WaitForSeconds(0);
         }
         canPlayMusic = false;
@@ -358,6 +355,7 @@ public class Sudoku : MonoBehaviour {
 
     bool CanPlaceValue(Matrix<int> mtx, int value, int x, int y)
     {
+        if (quadrantSize > 3) return CanPlaceValue2(mtx, value, x, y);
         List<int> fila = new List<int>();
         List<int> columna = new List<int>();
         List<int> area = new List<int>();
@@ -413,5 +411,23 @@ public class Sudoku : MonoBehaviour {
             if (list[i] != 0) aux.Add(list[i]);
         }
         return aux;
+    }
+
+
+    bool CanPlaceValue2(Matrix<int> mtx, int value, int x, int y)
+    {
+        // row & column
+        for (int i = 0; i < _board.Width; i++) if (i != x && mtx[i, y] == value || i != y && mtx[x, i] == value) return false;
+        
+        // quadrant
+        int srow = x / quadrantSize * quadrantSize;
+        int scol = y / quadrantSize * quadrantSize;
+        for (int contador_row = srow; contador_row < srow + quadrantSize; contador_row++)
+            for (int contador_col = scol; contador_col < scol + quadrantSize; contador_col++)
+                if (!(contador_row == x && contador_col == y))
+                    if (mtx[contador_row, contador_col] == value)
+                        return false;
+
+        return true;
     }
 }

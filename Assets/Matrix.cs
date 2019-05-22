@@ -23,11 +23,13 @@ public class Matrix<T> : IEnumerable<T>
 
     public void SetRangeTo(int x0, int y0, int x1, int y1, T item)
     {
-        if (x0 < Width - 1 || x0 > Width - 1 || y0 < Height - 1 || y0 > Height - 1) throw new UnityException("Some index is out of range");
-        if (x0 > x1 || y0 > y1) throw new UnityException("Some starter index is greater than some ending index");
-
-        var start = x0 + y0 * Width; var end = x1 + y1 * Width;
-        for (var i = start; i <= end - start; i++) matrix[i % Width, i / Width] = item;
+        for (int i = y0; i < y1; i++)
+        {
+            for (int j = x0; j < x1; j++)
+            {
+                matrix[j, i] = item;
+            }
+        }
     }
 
     public List<T> GetRange(int x0, int y0, int x1, int y1)
