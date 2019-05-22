@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.UI;
-using System.Linq;
 
 public class Sudoku : MonoBehaviour {
     public int blocSize = 3;
@@ -350,26 +349,65 @@ public class Sudoku : MonoBehaviour {
     void CreateNew()
     {
         _createdMatrix = new Matrix<int>(Tests.validBoards[10]);
-
         TranslateAllValues(_createdMatrix);
-        LockValuesToSolve();
     }
-
 
     bool CanPlaceValue(Matrix<int> mtx, int value, int x, int y)
     {
-        //Valida fila y columna
-        for (int i = 0; i < _board.Width; i++) if (i != x && mtx[i, y] == value || i != y && mtx[x, i] == value) return false;
+        List<int> fila = new List<int>();
+        List<int> columna = new List<int>();
+        List<int> area = new List<int>();
+        List<int> total = new List<int>();
 
-        //Valida bloque 3x3
-        int srow = x / blocSize * blocSize;
-        int scol = y / blocSize * blocSize;
-        for (int contador_row = srow; contador_row < srow + blocSize; contador_row++)
-            for (int contador_col = scol; contador_col < scol + blocSize; contador_col++)
-                if (!(contador_row == x && contador_col == y))
-                    if (mtx[contador_row, contador_col] == value)
-                        return false;
+        Vector2 cuadrante = Vector2.zero;
 
-        return true;
+        for (int i = 0; i < mtx.Height; i++)
+        {
+            for (int j = 0; j < mtx.Width; j++)
+            {
+                if (i != y && j == x) columna.Add(mtx[j, i]);
+                else if (i == y && j != x) fila.Add(mtx[j, i]);
+            }
+        }
+
+
+
+        cuadrante.x = (int)(x / 3);
+
+        if (x < 3)
+            cuadrante.x = 0;
+        else if (x < 6)
+            cuadrante.x = 3;
+        else
+            cuadrante.x = 6;
+
+        if (y < 3)
+            cuadrante.y = 0;
+        else if (y < 6)
+            cuadrante.y = 3;
+        else
+            cuadrante.y = 6;
+
+        area = mtx.GetRange((int)cuadrante.x, (int)cuadrante.y, (int)cuadrante.x + 3, (int)cuadrante.y + 3);
+        total.AddRange(fila);
+        total.AddRange(columna);
+        total.AddRange(area);
+        total = FilterZeros(total);
+
+        if (total.Contains(value))
+            return false;
+        else
+            return true;
+    }
+
+
+    List<int> FilterZeros(List<int> list)
+    {
+        List<int> aux = new List<int>();
+        for (int i = 0; i < list.Count; i++)
+        {
+            if (list[i] != 0) aux.Add(list[i]);
+        }
+        return aux;
     }
 }

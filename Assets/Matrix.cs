@@ -33,8 +33,15 @@ public class Matrix<T> : IEnumerable<T>
     public List<T> GetRange(int x0, int y0, int x1, int y1)
     {
         List<T> l = new List<T>();
-        var start = x0 + y0 * Width; var end = x1 + y1 * Width;
-        for (var i = start; i <= end - start; i++) l.Add(matrix[i % Width, i / Width]);
+
+        for (int i = y0; i < y1; i++)
+        {
+            for (int j = x0; j < x1; j++)
+            {
+                l.Add(matrix[j, i]); 
+            }
+        }
+
         return l;
     }
 
