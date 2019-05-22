@@ -203,8 +203,10 @@ public class Sudoku : MonoBehaviour {
             TranslateAllValues(item);
             LockValuesToSolve();
             feedback.text = "Pasos: " + paso + "/" + total + " - " + memory + " - " + canSolve;
+            changeFreq(Random.Range(0, 100));
             yield return new WaitForSeconds(0);
         }
+        canPlayMusic = false;
     }
 
 	void Update () {
@@ -239,6 +241,7 @@ public class Sudoku : MonoBehaviour {
         long mem = System.GC.GetTotalMemory(true);
         memory = string.Format("MEM: {0:f2}MB", mem / (1024f * 1024f));
         canSolve = result ? " VALID" : " INVALID";
+        canPlayMusic = true;
         StartCoroutine(ShowSequence(solution));
     }
 
@@ -253,6 +256,7 @@ public class Sudoku : MonoBehaviour {
         long mem = System.GC.GetTotalMemory(true);
         memory = string.Format("MEM: {0:f2}MB", mem / (1024f * 1024f));
         canSolve = result ? " VALID" : " INVALID";
+        canPlayMusic = true;
         StartCoroutine(ShowSequence(solution));
         _createdMatrix = solution[solution.Count - 1];
         LockRandomCells();
