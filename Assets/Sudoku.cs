@@ -70,14 +70,15 @@ public class Sudoku : MonoBehaviour {
 
 	int watchdog = 0;
 
-    int ResolveBrute(Matrix<int> matrixParent, out Matrix<int> solution)
+    object[] ResolveBrute(Matrix<int> matrixParent, out Matrix<int> solution)
     {
         var solved = false;
         var intentos = 0;
         solution = new Matrix<int>(0, 0);
 
-        while (!solved)
+        while (!solved && watchdog > 0)
         {
+            watchdog--;
             intentos++;
             solution = matrixParent.Clone();
             var breakFree = false;
@@ -107,7 +108,7 @@ public class Sudoku : MonoBehaviour {
             }
         }
 
-        return intentos;
+        return new object[] { solved, intentos };
     }
 
     bool RecuSolve(Matrix<int> matrixParent, out List<Matrix<int>> solution)
@@ -121,6 +122,8 @@ public class Sudoku : MonoBehaviour {
 
     bool RecuSolve(int x, int y, int protectMaxDepth, List<Matrix<int>> solution)
     {
+        watchdog--;
+        if (watchdog <= protectMaxDepth) return false;
         if (y > _board.Height-1) return true;
 
         // Si el casillero esta vacío lo resuelvo, si ya tenia un valor cargado de antes lo salteo (porque está bloqueado)
@@ -144,6 +147,7 @@ public class Sudoku : MonoBehaviour {
                     }
                     else
                     {
+                        if (watchdog <= protectMaxDepth) return false;
                         newSolution[x, y] = 0;
                         solution.Add(newSolution);
                     }
@@ -199,7 +203,7 @@ public class Sudoku : MonoBehaviour {
             paso++;
             TranslateAllValues(item);
             LockValuesToSolve();
-            feedback.text = "Pasos: " + paso + "/" + total + " - " + memory + " - " + canSolve;
+            feedback.text = "Steps: " + paso + "/" + total + " - " + memory + " - " + canSolve;
             changeFreq(Random.Range(0, 50));
             yield return new WaitForSeconds(0);
         }
@@ -223,7 +227,8 @@ public class Sudoku : MonoBehaviour {
         var result = ResolveBrute(_createdMatrix, out solution);
         long mem = System.GC.GetTotalMemory(true);
         memory = string.Format("MEM: {0:f2}MB", mem / (1024f * 1024f));
-        feedback.text = "Pasos: " + result + " - " + memory;
+        canSolve = (bool)result[0] ? " VALID" : " INVALID";
+        feedback.text = "Steps: " + (int)result[1] + " - " + memory + " - " + canSolve;
         TranslateAllValues(solution);
         LockValuesToSolve();
     }
@@ -234,7 +239,6 @@ public class Sudoku : MonoBehaviour {
         List<Matrix<int>> solution;
         watchdog = 100000;
         var result = RecuSolve(_createdMatrix, out solution);
-
         long mem = System.GC.GetTotalMemory(true);
         memory = string.Format("MEM: {0:f2}MB", mem / (1024f * 1024f));
         canSolve = result ? " VALID" : " INVALID";
@@ -249,7 +253,6 @@ public class Sudoku : MonoBehaviour {
         List<Matrix<int>> solution;
         watchdog = 100000;
         var result = RecuSolve(_createdMatrix, out solution);
-
         long mem = System.GC.GetTotalMemory(true);
         memory = string.Format("MEM: {0:f2}MB", mem / (1024f * 1024f));
         canSolve = result ? " VALID" : " INVALID";
